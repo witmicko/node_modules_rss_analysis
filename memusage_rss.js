@@ -3,7 +3,6 @@
  */
 var util = require('util');
 
-// var memwatch = require('memwatch');
 var decache = require('decache');
 var sprintf = require("sprintf-js").sprintf;
 var Table = require('cli-table');
@@ -29,8 +28,9 @@ function newTable(){
 }
 
 function log(dep) {
-  var usage = util.inspect(process.memoryUsage()).replace('{','').replace('}','').split(',');
-  var rss =       parseFloat(usage[0].split(':')[1])/1000000;
+
+  var usage = process.memoryUsage();
+  var rss =       parseFloat(usage.rss)/1000000;
   var diff = 0;
   if(dep === 'empty'){
     dep = 'my utils';
@@ -38,18 +38,13 @@ function log(dep) {
     exec("echo " + baselineMem + " > baselinemem")
   }else {
     rss = rss - baselineMem;
-    diff =      parseFloat(rss) - previous_rss;
+    diff = parseFloat(rss) - previous_rss;
     previous_rss =  rss;
   }
 
-  var heapTotal = parseFloat(usage[1].split(':')[1])/1000000;
-  var heapUsed =  parseFloat(usage[2].split(':')[1])/1000000;
-
-  table.push([dep, sprintf("%4.2f mb",  rss),
-                   sprintf("%+4.2f mb", diff)]);
+  table.push([dep, sprintf("%4.2f mb",  rss), sprintf("%+4.2f mb", diff)]);
 
 }
-
 var baseline_package ={
   // "body-parser": "~1.0.2",
   // "cors": "~2.2.0",
@@ -108,26 +103,30 @@ var fh_db_package = {
 var fh_db_deps = Object.keys(fh_db_package);
 
 var decacheAll = function() {
-  hello_deps.forEach(function(dep) {
-    decache(dep);
-  });
-  mbass_deps.forEach(function(dep) {
-    decache(dep);
-  });
-  fh_db_deps.forEach(function(dep) {
-    decache(dep);
-  });
+  delete require.cache;
+  // hello_deps.forEach(function(dep) {
+  //   decache(dep);
+  // });
+  // mbass_deps.forEach(function(dep) {
+  //   decache(dep);
+  // });
+  // fh_db_deps.forEach(function(dep) {
+  //   decache(dep);
+  // });
+  // global.gc();
 };
 newTable();
 
 
 if(baseline){
+
   log('empty');
   console.log('-----baseline-----');
   for (var i = 0; i < baseline_deps.length; i++) {
     var dep = baseline_deps[i];
     require(dep);
     decacheAll();
+
     log(dep);
   }
   console.log(table.toString());
@@ -135,7 +134,7 @@ if(baseline){
 }
 
 if( hello_app) {
-  console.log('-----HELLO WORLD CLOUD APP-----');
+  console.log('-----mbaas-client-----');
 
   for (var i = 0; i < hello_deps.length; i++) {
     var dep = hello_deps[i];
@@ -148,7 +147,7 @@ if( hello_app) {
 }
 
 if(mbaas) {
-  console.log('\n\n-----------MBAAS-----------');
+  console.log('\n\n-----------Logger-----------');
   for (var i = 0; i < mbass_deps.length; i++) {
     var dep = mbass_deps[i];
     require(dep);

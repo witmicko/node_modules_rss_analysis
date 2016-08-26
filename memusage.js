@@ -23,8 +23,8 @@ function log(dep, diff) {
 
   var usage = util.inspect(process.memoryUsage()).replace('{','').replace('}','').split(',');
   var rss =       sprintf("%4.2f", parseInt(usage[0].split(':')[1])/1000000);
-  var heapTotal = sprintf("%4.2f", parseInt(usage[1].split(':')[1])/1000000);
-  var heapUsed =  sprintf("%4.2f", parseInt(usage[2].split(':')[1])/1000000);
+  // var heapTotal = sprintf("%4.2f", parseInt(usage[1].split(':')[1])/1000000);
+  // var heapUsed =  sprintf("%4.2f", parseInt(usage[2].split(':')[1])/1000000);
 
   table.push([dep, diff.change.size, rss, heapTotal, heapUsed]);
 }
